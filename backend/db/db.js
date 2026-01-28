@@ -6,9 +6,7 @@ const connectDB = async () => {
       throw new Error("MONGODB_URL not found in environment variables");
     }
 
-    const conn = await mongoose.connect(process.env.MONGODB_URL, {
-
-    });
+    const conn = await mongoose.connect(process.env.MONGODB_URL, {});
 
     console.log("MongoDB connected:", conn.connection.host);
   } catch (error) {
@@ -17,4 +15,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = {connectDB};
+module.exports = { connectDB };

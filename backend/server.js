@@ -9,15 +9,23 @@ const PORT = 5000;
 
 app.use(express.json());
 
+const { authMiddleware } = require("./middlewares/auth.middleware.js");
 const { connectDB } = require("./db/db.js");
-const router = require("./routes/user.routes.js");
+const userRouter = require("./routes/user.routes.js");
+const todoRouter = require("./routes/todo.routes.js");
+
 connectDB();
 
-app.use("/api", router);
+app.use("/api", userRouter);
+app.use("/todo", todoRouter)
 app.get("/", (req, res) => {
   res.send("welcome to Full-Stack todo api");
 });
 
+// coment for vercel
 app.listen(PORT, () => {
   console.log(`server is up on localhost:${PORT}`);
 });
+
+// for vercel deploy 
+// module.exports = app;
