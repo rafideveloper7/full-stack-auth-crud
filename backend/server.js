@@ -31,9 +31,9 @@ app.get("/", (req, res) => {
 });
 
 // coment for vercel
-app.listen(PORT, () => {
-  console.log(`server is up on localhost:${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`server is up on localhost:${PORT}`);
+// });
 
 // for vercel deploy 
-// module.exports = app;
+module.exports = app;
