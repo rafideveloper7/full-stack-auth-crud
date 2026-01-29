@@ -8,13 +8,16 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
+      "dest": "backend/server.js"
+    },
+    {
+      "src": "/",
       "dest": "backend/server.js"
     }
   ],
   "env": {
     "MONGODB_URL": "mongodb+srv://rafideveloper7:rafideveloper7@todo-auth-base.u65eosb.mongodb.net/?appName=todo-auth-base",
-    "MY_SECRET": "iamrafiullah",
-    "PORT": "5000"
+    "MY_SECRET": "iamrafiullah"
   }
 }
