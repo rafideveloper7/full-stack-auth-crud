@@ -26,7 +26,11 @@ const registerUser = async (req, res) => {
       password: hashPassword,
     });
 
-    const token = jwt.sign({ id: user._id }, secret, { expiresIn: "7d" });
+    const payload = {
+      name, email
+    }
+
+    const token = jwt.sign(payload, secret, { expiresIn: "7d" });
 
     res.status(201).json({
       isSuccess: true,
@@ -56,8 +60,13 @@ const loginUser = async (req, res) => {
     if (!isMatch) {
       return res.status(401).json({ isSuccess: false, message: "Invalid credentials" });
     }
+    const payload = {
+      email,
+      id: user._id,
+      name: user.name
+    }
 
-    const token = jwt.sign({ id: user._id }, secret, { expiresIn: "7d" });
+    const token = jwt.sign(payload, secret, { expiresIn: "7d" });
 
     res.json({
       isSuccess: true,
