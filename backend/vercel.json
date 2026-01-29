@@ -13,7 +13,8 @@
     }
   ],
   "env": {
-    "MONGO_URI": "@mongo_uri",
-    "JWT_SECRET": "@jwt_secret"
+    "MONGODB_URL": "@MONGODB_URL",
+    "MY_SECRET": "@MY_SECRET",
+    "PORT": "5000"
   }
 }
