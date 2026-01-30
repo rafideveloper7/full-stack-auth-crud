@@ -10,9 +10,9 @@ const PORT = 5000;
 app.use(express.json());
 
 // const { authMiddleware } = require("./middlewares/auth.middleware.js");
-const { connectDB } = require("./db/db.js");
-const userRouter = require("./routes/user.routes.js");
-const todoRouter = require("./routes/todo.routes.js");
+const { connectDB } = require("../db/db.js");
+const userRouter = require("../routes/user.routes.js");
+const todoRouter = require("../routes/todo.routes.js");
 
 connectDB();
 

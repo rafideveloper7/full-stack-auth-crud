@@ -22,7 +22,7 @@ function Register() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/user/register",
+        "https://full-stack-auth-crud.vercel.app/api/user/register",
         form,
         {
           headers: {

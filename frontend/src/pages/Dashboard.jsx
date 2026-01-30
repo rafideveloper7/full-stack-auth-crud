@@ -46,7 +46,7 @@ function Dashboard() {
       const token = localStorage.getItem("token");
       if (!token) return logout();
 
-      const res = await axios.get("http://localhost:5000/api/todo", {
+      const res = await axios.get("https://full-stack-auth-crud.vercel.app/api/todo", {
         headers: { Authorization: token },
       });
 
@@ -75,7 +75,7 @@ function Dashboard() {
     try {
       const token = localStorage.getItem("token");
       await axios.put(
-        `http://localhost:5000/api/todo/${id}`,
+        `https://full-stack-auth-crud.vercel.app/api/todo/${id}`,
         { isCompleted: !currentStatus },
         { headers: { Authorization: token } },
       );
@@ -89,7 +89,7 @@ function Dashboard() {
   const deleteTodo = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/todo/${id}`, {
+      await axios.delete(`https://full-stack-auth-crud.vercel.app/api/todo/${id}`, {
         headers: { Authorization: token },
       });
       fetchTodos();
@@ -109,7 +109,7 @@ function Dashboard() {
   const saveEdit = async (id) => {
     try {
       const token = localStorage.getItem("token");
-      await axios.put(`http://localhost:5000/api/todo/${id}`, editForm, {
+      await axios.put(`https://full-stack-auth-crud.vercel.app/api/todo/${id}`, editForm, {
         headers: { Authorization: token },
       });
       setEditingTodo(null);
@@ -133,7 +133,7 @@ function Dashboard() {
 
     try {
       const token = localStorage.getItem("token");
-      await axios.post("http://localhost:5000/api/todo", newTodo, {
+      await axios.post("https://full-stack-auth-crud.vercel.app/api/todo", newTodo, {
         headers: { Authorization: token },
       });
       setNewTodo({ title: "", description: "" });
