@@ -1,12 +1,23 @@
 const Todo = require("../models/todo.model");
 
+
 /*
 GET /todos
 Get all todos of logged-in user
 */
 const getTodos = async (req, res) => {
   try {
+    console.log("=== GET TODOS ===");
+    console.log("Request from userId:", req.userId);
+    console.log("Looking for todos where user =", req.userId);
+
     const todos = await Todo.find({ user: req.userId }).sort({ createdAt: -1 });
+
+    console.log("Found todos:", todos.length);
+    console.log(
+      "Todos found:",
+      todos.map((t) => ({ id: t._id, title: t.title, user: t.user })),
+    );
 
     res.status(200).json({
       isSuccess: true,
@@ -14,6 +25,7 @@ const getTodos = async (req, res) => {
       data: todos,
     });
   } catch (error) {
+    console.error("GET TODOS ERROR:", error);
     res.status(500).json({
       isSuccess: false,
       message: "Internal server error",
@@ -27,6 +39,10 @@ Create todo for logged-in user
 */
 const createTodo = async (req, res) => {
   try {
+    console.log("=== CREATE TODO ===");
+    console.log("Request from userId:", req.userId);
+    console.log("Request body:", req.body);
+
     const { title, description } = req.body;
 
     if (!title) {
@@ -39,7 +55,13 @@ const createTodo = async (req, res) => {
     const todo = await Todo.create({
       title,
       description,
-      user: req.userId,
+      user: req.userId, // This attaches the user ID
+    });
+
+    console.log("Todo created:", {
+      id: todo._id,
+      title: todo.title,
+      user: todo.user,
     });
 
     res.status(201).json({
@@ -47,6 +69,7 @@ const createTodo = async (req, res) => {
       data: todo,
     });
   } catch (error) {
+    console.error("CREATE TODO ERROR:", error);
     res.status(500).json({
       isSuccess: false,
       message: "Internal server error",

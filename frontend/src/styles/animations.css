@@ -1,0 +1,36 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.2s ease-out;
+}
+
+.animate-slideDown {
+  animation: slideDown 0.2s ease-out;
+}
+
+/* Better scrolling on mobile */
+@media (max-width: 640px) {
+  table {
+    -webkit-overflow-scrolling: touch;
+  }
+}
