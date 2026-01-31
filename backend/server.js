@@ -12,7 +12,6 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
-const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
 
 connectDB();
 
@@ -23,11 +22,6 @@ app.get("/", (req, res) => {
   res.json({ message: "API is running" });
 });
 
-// Only start a server for local dev
-// if (!isVercel) {
-//   app.listen(PORT, () => {
-//     console.log(`Server running on http://localhost:${PORT}`);
-//   });
-// }
-
-module.exports = app;
+app.listen(PORT, () => {
+  console.log(`Server running on http://localhost:${PORT}`);
+});

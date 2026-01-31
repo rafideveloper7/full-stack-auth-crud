@@ -7,9 +7,6 @@ Get all todos of logged-in user
 */
 const getTodos = async (req, res) => {
   try {
-    console.log("=== GET TODOS ===");
-    console.log("Request from userId:", req.userId);
-    console.log("Looking for todos where user =", req.userId);
 
     const todos = await Todo.find({ user: req.userId }).sort({ createdAt: -1 });
 
@@ -39,9 +36,6 @@ Create todo for logged-in user
 */
 const createTodo = async (req, res) => {
   try {
-    console.log("=== CREATE TODO ===");
-    console.log("Request from userId:", req.userId);
-    console.log("Request body:", req.body);
 
     const { title, description } = req.body;
 

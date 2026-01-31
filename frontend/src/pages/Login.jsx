@@ -32,7 +32,7 @@ function Login() {
       );
       
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/");
       
     } catch (err) {
       console.error(err);
@@ -92,12 +92,6 @@ function Login() {
                 <label className="block text-sm font-medium text-gray-700">
                   Password
                 </label>
-                <Link 
-                  to="/forgot-password" 
-                  className="text-sm text-blue-600 hover:text-blue-700 transition"
-                >
-                  Forgot password?
-                </Link>
               </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

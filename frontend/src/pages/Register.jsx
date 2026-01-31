@@ -32,7 +32,7 @@ function Register() {
       );
 
       localStorage.setItem("token", res.data.token);
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       console.error(err);
       setError(err.response?.data?.message || "Registration failed");
