@@ -24,10 +24,10 @@ app.get("/", (req, res) => {
 });
 
 // Only start a server for local dev
-if (!isVercel) {
-  app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
+// if (!isVercel) {
+//   app.listen(PORT, () => {
+//     console.log(`Server running on http://localhost:${PORT}`);
+//   });
+// }
 
 module.exports = app;
