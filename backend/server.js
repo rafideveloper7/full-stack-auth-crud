@@ -1,39 +1,44 @@
 const express = require("express");
-const app = express();
-require("dotenv").config();
-// control errors while both fronend and backend local servers live
 const cors = require("cors");
-app.use(cors());
+require("dotenv").config();
 
-const PORT = 5000;
-
-app.use(express.json());
-
-// const { authMiddleware } = require("./middlewares/auth.middleware.js");
 const { connectDB } = require("./db/db.js");
 const userRouter = require("./routes/user.routes.js");
 const todoRouter = require("./routes/todo.routes.js");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+const isVercel = process.env.VERCEL === "1" || process.env.VERCEL === "true";
+const PORT = process.env.PORT || 5000;
+
+const BASE_URL = isVercel
+  ? `https://${process.env.VERCEL_URL}`
+  : `http://localhost:${PORT}`;
 
 connectDB();
 
 app.use("/api/user", userRouter);
 app.use("/api/todo", todoRouter);
+
 app.get("/api", (req, res) => {
-  res.send({
+  res.json({
     isSuccess: true,
     message: "welcome to Full-Stack todo api",
-    baseApi: "http://localhost:5000/",
-    Todos: "http://localhost:5000/api/todo",
-    deleteTodo: "http://localhost:5000/api/todo/id",
-    createImageBitmapTodo: "http://localhost:5000/api/todo/id",
-    updateTodo: "http://localhost:5000/api/todo/id",
+    baseApi: BASE_URL,
+    todos: `${BASE_URL}/api/todo`,
+    createTodo: `${BASE_URL}/api/todo`,
+    updateTodo: `${BASE_URL}/api/todo/:id`,
+    deleteTodo: `${BASE_URL}/api/todo/:id`
   });
 });
 
-// coment for vercel
-app.listen(PORT, () => {
-  console.log(`server is up on localhost:${PORT}`);
-});
+if (!isVercel) {
+  app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}
 
-// for vercel deploy 
-// module.exports = app;
+module.exports = app;
