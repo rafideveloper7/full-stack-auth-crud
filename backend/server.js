@@ -18,7 +18,7 @@ connectDB();
 
 app.use("/api/user", userRouter);
 app.use("/api/todo", todoRouter);
-app.get("/", (req, res) => {
+app.get("/api", (req, res) => {
   res.send({
     isSuccess: true,
     message: "welcome to Full-Stack todo api",
