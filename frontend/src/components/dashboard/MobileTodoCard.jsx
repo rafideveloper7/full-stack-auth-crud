@@ -1,4 +1,11 @@
-import { ChevronDown, ChevronUp, Check, AlertCircle, Edit, Trash2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Check,
+  AlertCircle,
+  Edit,
+  Trash2,
+} from "lucide-react";
 
 const MobileTodoCard = ({
   todo,

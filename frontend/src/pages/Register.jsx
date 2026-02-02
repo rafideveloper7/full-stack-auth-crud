@@ -3,6 +3,9 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, User, Mail, Lock, UserPlus } from "lucide-react";
 
+// API configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 function Register() {
   const [form, setForm] = useState({ name: "", email: "", password: "" });
   const [error, setError] = useState("");
@@ -22,7 +25,7 @@ function Register() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/user/register",
+        `${API_BASE_URL}/api/user/register`,
         form,
         {
           headers: {

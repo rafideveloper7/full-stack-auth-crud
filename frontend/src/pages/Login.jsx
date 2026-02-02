@@ -3,12 +3,16 @@ import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 
+// API configuration
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
+
   
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,7 +26,7 @@ function Login() {
     
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/user/login",
+        `${API_BASE_URL}/api/user/login`,
         form,
         {
           headers: {

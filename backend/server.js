@@ -9,6 +9,13 @@ const todoRouter = require("./routes/todo.routes.js");
 const app = express();
 
 app.use(cors());
+app.use(
+  cors({
+    origin: ["https://your-frontend-url.vercel.app", "http://localhost:5173"],
+    methods: ["POST", "GET", "PUT", "DELETE"],
+    credentials: true,
+  }),
+);
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
