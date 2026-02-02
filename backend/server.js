@@ -8,11 +8,11 @@ const todoRouter = require("./routes/todo.routes.js");
 
 const app = express();
 
-app.use(cors());
+const cors = require("cors");
+
 app.use(
   cors({
-    origin: ["https://frontend-crud-liart.vercel.app/", "http://localhost:5173"],
-    methods: ["POST", "GET", "PUT", "DELETE"],
+    origin: "https://frontend-crud-liart.vercel.app", // frontend URL
     credentials: true,
   }),
 );
