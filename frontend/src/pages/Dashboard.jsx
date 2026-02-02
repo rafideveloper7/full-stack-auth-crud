@@ -94,7 +94,7 @@ function Dashboard() {
       }
 
       // Fetch todos
-      const response = await axios.get(`${API_BASE_URL}/todo`, {
+      const response = await axios.get(`${API_BASE_URL}/api/todo`, {
         headers: { 
           Authorization: token,
           "Content-Type": "application/json"
@@ -138,7 +138,7 @@ function Dashboard() {
     try {
       const token = getAuthToken();
       await axios.put(
-        `${API_BASE_URL}/todo/${id}`,
+        `${API_BASE_URL}/api/todo/${id}`,
         { isCompleted: !currentStatus },
         { headers: { Authorization: token } }
       );
@@ -153,7 +153,7 @@ function Dashboard() {
   const deleteTodo = async (id) => {
     try {
       const token = getAuthToken();
-      await axios.delete(`${API_BASE_URL}/todo/${id}`, {
+      await axios.delete(`${API_BASE_URL}/api/todo/${id}`, {
         headers: { Authorization: token },
       });
       fetchTodos();
@@ -179,7 +179,7 @@ function Dashboard() {
     try {
       const token = getAuthToken();
       await axios.put(
-        `${API_BASE_URL}/todo/${id}`,
+        `${API_BASE_URL}/api/todo/${id}`,
         editForm,
         { headers: { Authorization: token } }
       );
@@ -207,7 +207,7 @@ function Dashboard() {
     try {
       const token = getAuthToken();
       await axios.post(
-        `${API_BASE_URL}/todo`,
+        `${API_BASE_URL}/api/todo`,
         newTodo,
         { headers: { Authorization: token } }
       );

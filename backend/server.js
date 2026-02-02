@@ -10,7 +10,11 @@ const app = express();
 
 // --- CORS ---
 app.use(cors({
-  origin: ["https://frontend-crud-liart.vercel.app", "http://localhost:5173"],
+  origin: [
+  "https://frontend-crud-liart.vercel.app", 
+  "http://localhost:5173", 
+  "http://127.0.0.1:5173"
+],
   credentials: true,
 }));
 
@@ -37,12 +41,12 @@ app.get("/", (req, res) => {
 
 // --- EXECUTION LOGIC ---
 // If we are NOT on Vercel, we need to manually call app.listen
-// if (process.env.NODE_ENV !== "production") {
-//   const PORT = process.env.PORT || 5000;
-//   app.listen(PORT, () => {
-//     console.log(`Local server: http://localhost:${PORT}`);
-//   });
-// }
+if (process.env.NODE_ENV !== "production") {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Local server: http://localhost:${PORT}`);
+  });
+}
 
 // Export for Vercel
 module.exports = app;
