@@ -35,7 +35,12 @@ app.use("/api/todo", todoRouter);
 app.get("/", (req, res) => {
   res.json({ 
     message: "API is running",
-    mode: process.env.NODE_ENV === "production" ? "Vercel/Production" : "Local/Dev"
+    mode: process.env.NODE_ENV === "production" ? "Vercel/Production" : "Local/Dev",
+    todos: `https://full-stack-auth-crud-51pi.vercel.app/api/todo`,
+    methods: `Get, Post, Put, Delete`,
+    user: `https://full-stack-auth-crud-51pi.vercel.app/api/user`,
+    method: `Post`
+
   });
 });
 
