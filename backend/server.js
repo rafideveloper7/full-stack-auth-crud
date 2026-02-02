@@ -8,64 +8,41 @@ const todoRouter = require("./routes/todo.routes.js");
 
 const app = express();
 
-const cors = require("cors");
+// --- CORS ---
+app.use(cors({
+  origin: ["https://frontend-crud-liart.vercel.app", "http://localhost:5173"],
+  credentials: true,
+}));
 
-app.use(
-  cors({
-    origin: "https://frontend-crud-liart.vercel.app", // frontend URL
-    credentials: true,
-  }),
-);
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
+// --- DATABASE ---
+// We call connectDB but don't let a failure crash the entire process immediately
+connectDB().then(() => {
+  console.log("Database connected successfully");
+}).catch(err => {
+  console.error("Database connection failed:", err);
+});
 
-connectDB();
-
+// --- ROUTES ---
 app.use("/api/user", userRouter);
 app.use("/api/todo", todoRouter);
 
-// ... existing imports
-
-// Root route providing API documentation for Frontend Devs
 app.get("/", (req, res) => {
-  const baseUrl = `${req.protocol}://${req.get("host")}`;
-
-  res.json({
-    message: "Welcome to the Full-Stack Auth CRUD API",
-    status: "Active",
-    documentation: {
-      auth_endpoints: {
-        register: {
-          method: "POST",
-          url: `${baseUrl}/api/user/register`,
-          body: { name: "string", email: "string", password: "string" },
-        },
-        login: {
-          method: "POST",
-          url: `${baseUrl}/api/user/login`,
-          body: { email: "string", password: "string" },
-        },
-      },
-      todo_endpoints: {
-        get_all: {
-          method: "GET",
-          url: `${baseUrl}/api/todo`,
-        },
-        create: {
-          method: "POST",
-          url: `${baseUrl}/api/todo`,
-          body: { title: "string", description: "string" },
-        },
-      },
-    },
+  res.json({ 
+    message: "API is running",
+    mode: process.env.NODE_ENV === "production" ? "Vercel/Production" : "Local/Dev"
   });
 });
 
-// ... rest of your routes and module.exports
+// --- EXECUTION LOGIC ---
+// If we are NOT on Vercel, we need to manually call app.listen
+// if (process.env.NODE_ENV !== "production") {
+//   const PORT = process.env.PORT || 5000;
+//   app.listen(PORT, () => {
+//     console.log(`Local server: http://localhost:${PORT}`);
+//   });
+// }
 
-// app.listen(PORT, () => {
-//   console.log(`Server running on http://localhost:${PORT}`);
-// });
-
+// Export for Vercel
 module.exports = app;
