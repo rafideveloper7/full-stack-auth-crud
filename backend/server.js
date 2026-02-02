@@ -44,6 +44,13 @@ app.get("/", (req, res) => {
   });
 });
 
+app.use((req,res) => {
+  res.status(404).send({
+    isSuccess: false,
+    message: `page not fund 404`
+  })
+});
+
 // --- EXECUTION LOGIC ---
 // If we are NOT on Vercel, we need to manually call app.listen
 if (process.env.NODE_ENV !== "production") {
