@@ -1,4 +1,4 @@
-# User Management Application (Full Stack)
+# Full-Stack Todo Management Application
 
 This is a full stack user management system built with React on the frontend and Express with MongoDB on the backend. The app includes authentication, user CRUD operations, validation, and a responsive interface.
 
