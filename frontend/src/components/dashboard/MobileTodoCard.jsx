@@ -1,11 +1,4 @@
-import {
-  ChevronDown,
-  ChevronUp,
-  Check,
-  AlertCircle,
-  Edit,
-  Trash2,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Check, AlertCircle, Edit, Trash2, X, Save } from "lucide-react";
 
 const MobileTodoCard = ({
   todo,
@@ -21,128 +14,142 @@ const MobileTodoCard = ({
   cancelEdit,
   setShowDeleteConfirm,
 }) => {
+  const isEditing = editingTodo === todo._id;
+  const isExpanded = expandedTodoId === todo._id;
+
   return (
-    <div className="bg-white rounded-xl shadow-md p-4 mb-3 border border-gray-100">
-      <div className="flex justify-between items-start">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <div className="flex items-center justify-center w-6 h-6 bg-gray-100 rounded-full text-xs font-medium">
-              {index + 1}
+    <div className={`bg-white rounded-2xl shadow-lg mb-4 border-2 transition-all duration-200 ${
+      todo.isCompleted 
+        ? "border-green-200 hover:border-green-300" 
+        : "border-orange-200 hover:border-orange-300"
+    }`}>
+      <div className="p-5">
+        <div className="flex justify-between items-start">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-3 mb-2">
+              <div className={`flex items-center justify-center w-8 h-8 rounded-xl text-sm font-bold transition-all duration-200 ${
+                todo.isCompleted 
+                  ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md" 
+                  : "bg-gradient-to-br from-orange-400 to-red-500 text-white shadow-md"
+              }`}>
+                {index + 1}
+              </div>
+              {isEditing ? (
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, title: e.target.value })
+                  }
+                  className="flex-1 px-3 py-2 border-2 border-indigo-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200"
+                  placeholder="Title"
+                  autoFocus
+                />
+              ) : (
+                <h3 className={`font-bold text-base truncate ${
+                  todo.isCompleted 
+                    ? "text-gray-400 line-through" 
+                    : "text-gray-800"
+                }`}>
+                  {todo.title}
+                </h3>
+              )}
             </div>
-            {editingTodo === todo._id ? (
-              <input
-                type="text"
-                value={editForm.title}
-                onChange={(e) =>
-                  setEditForm({ ...editForm, title: e.target.value })
-                }
-                className="flex-1 px-3 py-1 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                placeholder="Title"
-              />
-            ) : (
-              <h3 className="font-semibold text-gray-800 truncate">
-                {todo.title}
-              </h3>
+
+            {(isExpanded || isEditing) && (
+              <div className="mt-3 ml-11 animate-fadeIn">
+                {isEditing ? (
+                  <textarea
+                    value={editForm.description}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
+                    className="w-full px-3 py-2 border-2 border-indigo-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all duration-200"
+                    placeholder="Description"
+                    rows="3"
+                  />
+                ) : (
+                  <p className="text-gray-600 text-sm bg-gray-50 p-3 rounded-xl">
+                    {todo.description || (
+                      <span className="text-gray-400 italic">No description</span>
+                    )}
+                  </p>
+                )}
+              </div>
             )}
           </div>
 
-          {expandedTodoId === todo._id || editingTodo === todo._id ? (
-            <div className="mt-2">
-              {editingTodo === todo._id ? (
-                <textarea
-                  value={editForm.description}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, description: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  placeholder="Description"
-                  rows="2"
-                />
-              ) : (
-                <p className="text-gray-600 text-sm">
-                  {todo.description || "No description"}
-                </p>
-              )}
-            </div>
-          ) : (
-            <p className="text-gray-500 text-sm truncate">
-              {todo.description || "No description"}
-            </p>
-          )}
+          <button
+            onClick={() => setExpandedTodoId(isExpanded ? null : todo._id)}
+            className="ml-2 p-2 text-gray-400 hover:text-gray-600 rounded-xl hover:bg-gray-100 transition-all duration-200"
+          >
+            {isExpanded ? (
+              <ChevronUp className="h-5 w-5" />
+            ) : (
+              <ChevronDown className="h-5 w-5" />
+            )}
+          </button>
         </div>
 
-        <button
-          onClick={() =>
-            setExpandedTodoId(expandedTodoId === todo._id ? null : todo._id)
-          }
-          className="ml-2 text-gray-400 hover:text-gray-600"
-        >
-          {expandedTodoId === todo._id ? (
-            <ChevronUp className="h-4 w-4" />
-          ) : (
-            <ChevronDown className="h-4 w-4" />
-          )}
-        </button>
-      </div>
+        <div className="flex items-center justify-between mt-4 pt-3 border-t-2 border-gray-100">
+          <button
+            onClick={() => toggleTodoStatus(todo._id, todo.isCompleted)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105 ${
+              todo.isCompleted
+                ? "bg-gradient-to-r from-green-400 to-green-500 text-white"
+                : "bg-gradient-to-r from-orange-400 to-red-500 text-white"
+            }`}
+          >
+            {todo.isCompleted ? (
+              <>
+                <Check className="h-4 w-4" />
+                <span>Done</span>
+              </>
+            ) : (
+              <>
+                <AlertCircle className="h-4 w-4" />
+                <span>Pending</span>
+              </>
+            )}
+          </button>
 
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
-        <button
-          onClick={() => toggleTodoStatus(todo._id, todo.isCompleted)}
-          className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs transition-all ${
-            todo.isCompleted
-              ? "bg-green-100 text-green-700 hover:bg-green-200"
-              : "bg-red-100 text-red-700 hover:bg-red-200"
-          }`}
-        >
-          {todo.isCompleted ? (
-            <>
-              <Check className="h-3 w-3" />
-              <span>Done</span>
-            </>
-          ) : (
-            <>
-              <AlertCircle className="h-3 w-3" />
-              <span>Pending</span>
-            </>
-          )}
-        </button>
-
-        <div className="flex items-center gap-1">
-          {editingTodo === todo._id ? (
-            <>
-              <button
-                onClick={() => saveEdit(todo._id)}
-                className="flex items-center gap-1 bg-blue-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-blue-600 transition"
-              >
-                <Check className="h-3 w-3" />
-                Save
-              </button>
-              <button
-                onClick={cancelEdit}
-                className="flex items-center gap-1 bg-gray-500 text-white px-3 py-1.5 rounded-lg text-xs hover:bg-gray-600 transition"
-              >
-                {/* <X className="h-3 w-3" /> */}
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <button
-                onClick={() => startEditing(todo)}
-                className="flex items-center gap-1 bg-blue-100 text-blue-700 p-1.5 rounded-lg hover:bg-blue-200 transition"
-                title="Edit"
-              >
-                <Edit className="h-3.5 w-3.5" />
-              </button>
-              <button
-                onClick={() => setShowDeleteConfirm(todo._id)}
-                className="flex items-center gap-1 bg-red-100 text-red-700 p-1.5 rounded-lg hover:bg-red-200 transition"
-                title="Delete"
-              >
-                <Trash2 className="h-3.5 w-3.5" />
-              </button>
-            </>
-          )}
+          <div className="flex items-center gap-2">
+            {isEditing ? (
+              <>
+                <button
+                  onClick={() => saveEdit(todo._id)}
+                  className="flex items-center gap-1 bg-gradient-to-r from-green-400 to-green-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:from-green-500 hover:to-green-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  <Save className="h-4 w-4" />
+                  Save
+                </button>
+                <button
+                  onClick={cancelEdit}
+                  className="flex items-center gap-1 bg-gradient-to-r from-gray-400 to-gray-500 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:from-gray-500 hover:to-gray-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                >
+                  <X className="h-4 w-4" />
+                  Cancel
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => startEditing(todo)}
+                  className="flex items-center gap-1 bg-gradient-to-r from-indigo-400 to-purple-500 text-white p-3 rounded-xl hover:from-indigo-500 hover:to-purple-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                  title="Edit"
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                <button
+                  onClick={() => setShowDeleteConfirm(todo._id)}
+                  className="flex items-center gap-1 bg-gradient-to-r from-red-400 to-red-500 text-white p-3 rounded-xl hover:from-red-500 hover:to-red-600 transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+                  title="Delete"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>

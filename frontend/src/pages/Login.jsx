@@ -1,50 +1,35 @@
 import { useState } from "react";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
-
-// API configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+import { useAuth } from "../hooks/useAuth";
 
 function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const navigate = useNavigate();
+  const [localError, setLocalError] = useState("");
+  const { login, loading, error } = useAuth();
 
-  
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError("");
+    setLocalError("");
   };
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setLoading(true);
-    
-    try {
-      const res = await axios.post(
-        `${API_BASE_URL}/api/user/login`,
-        form,
-        {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
-      
-      localStorage.setItem("token", res.data.token);
-      navigate("/");
-      
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || "Invalid email or password");
-    } finally {
-      setLoading(false);
+    setLocalError("");
+
+    if (!form.email || !form.password) {
+      setLocalError("Please fill in all fields");
+      return;
+    }
+
+    const result = await login(form.email, form.password);
+    if (!result.success) {
+      // Error is handled by context
     }
   };
+
+  const displayError = localError || error;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center p-4">
@@ -61,9 +46,9 @@ function Login() {
           </div>
 
           {/* Error Message */}
-          {error && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-red-600 text-sm text-center">{error}</p>
+          {displayError && (
+            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl animate-fadeIn">
+              <p className="text-red-600 text-sm text-center">{displayError}</p>
             </div>
           )}
 

@@ -1,4 +1,4 @@
-import { Check, XCircle, Edit, Trash2, CheckCircle, X } from "lucide-react";
+import { Check, XCircle, Edit, Trash2, CheckCircle, X, Calendar, Plus, Save } from "lucide-react";
 
 const DesktopTodoTable = ({
   filteredTodos,
@@ -11,54 +11,59 @@ const DesktopTodoTable = ({
   cancelEdit,
   setShowDeleteConfirm,
   filter,
+  setShowAddForm
 }) => {
+  const getStatusBadge = (isCompleted) => {
+    return isCompleted
+      ? "bg-gradient-to-r from-green-400 to-green-500 text-white border-0 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200"
+      : "bg-gradient-to-r from-orange-400 to-red-500 text-white border-0 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200";
+  };
+
+  const getRowStyle = (isCompleted) => {
+    return isCompleted
+      ? "bg-gradient-to-r from-green-50/50 to-emerald-50/50"
+      : "bg-white";
+  };
+
   return (
-    <div className="hidden lg:block bg-white/90 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-gray-200">
-      <div className="p-5 sm:p-6 border-b border-gray-200">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
+    <div className="hidden lg:block bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
+      <div className="p-6 border-b border-gray-100 bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50">
+        <h2 className="text-2xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
           Your Tasks
         </h2>
-        <p className="text-gray-600 sm:text-base text-sm mt-1">
+        <p className="text-gray-600 text-sm mt-1">
           Manage all your todos in one place
         </p>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[640px]">
-          <thead className="bg-gray-50/80">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">
-                #
-              </th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">
-                Title
-              </th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">
-                Description
-              </th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">
-                Status
-              </th>
-              <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold text-gray-700">
-                Actions
-              </th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">#</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Title</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Description</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-gray-100">
             {filteredTodos.map((todo, idx) => (
               <tr
                 key={todo._id}
-                className="hover:bg-gray-50/80 transition-colors"
+                className={`${getRowStyle(todo.isCompleted)} hover:bg-gradient-to-r hover:from-indigo-50/50 hover:to-purple-50/50 transition-all duration-200 group`}
               >
-                <td className="px-4 sm:px-6 py-3 sm:py-4">
-                  <div className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 bg-gray-100 rounded-full">
-                    <span className="text-gray-700 font-medium text-xs sm:text-sm">
-                      {idx + 1}
-                    </span>
+                <td className="px-6 py-4">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold transition-all duration-200 group-hover:scale-110 ${
+                    todo.isCompleted 
+                      ? "bg-gradient-to-r from-green-400 to-green-500 text-white shadow-md" 
+                      : "bg-gradient-to-r from-orange-400 to-red-500 text-white shadow-md"
+                  }`}>
+                    {idx + 1}
                   </div>
                 </td>
 
-                <td className="px-4 sm:px-6 py-3 sm:py-4">
+                <td className="px-6 py-4">
                   {editingTodo === todo._id ? (
                     <input
                       type="text"
@@ -66,18 +71,17 @@ const DesktopTodoTable = ({
                       onChange={(e) =>
                         setEditForm({ ...editForm, title: e.target.value })
                       }
-                      className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm sm:text-base"
+                      className="w-full px-3 py-2 border-2 border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all duration-200"
+                      autoFocus
                     />
                   ) : (
-                    <div>
-                      <p className="font-medium text-gray-800 text-sm sm:text-base">
-                        {todo.title}
-                      </p>
-                    </div>
+                    <span className={`font-semibold text-gray-800 ${todo.isCompleted ? 'line-through text-gray-400' : ''}`}>
+                      {todo.title}
+                    </span>
                   )}
                 </td>
 
-                <td className="px-4 sm:px-6 py-3 sm:py-4">
+                <td className="px-6 py-4">
                   {editingTodo === todo._id ? (
                     <textarea
                       value={editForm.description}
@@ -87,55 +91,53 @@ const DesktopTodoTable = ({
                           description: e.target.value,
                         })
                       }
-                      className="w-full px-3 py-1.5 sm:py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm sm:text-base"
+                      className="w-full px-3 py-2 border-2 border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none text-sm transition-all duration-200"
                       rows="2"
                     />
                   ) : (
-                    <p className="text-gray-600 text-sm sm:text-base">
-                      {todo.description || "—"}
-                    </p>
+                    <span className={`text-gray-600 ${todo.isCompleted ? 'text-gray-400' : ''}`}>
+                      {todo.description || (
+                        <span className="text-gray-400 italic">No description</span>
+                      )}
+                    </span>
                   )}
                 </td>
 
-                <td className="px-4 sm:px-6 py-3 sm:py-4">
+                <td className="px-6 py-4">
                   <button
                     onClick={() => toggleTodoStatus(todo._id, todo.isCompleted)}
-                    className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full transition-all duration-300 text-xs sm:text-sm ${
-                      todo.isCompleted
-                        ? "bg-green-100 text-green-700 hover:bg-green-200"
-                        : "bg-red-100 text-red-700 hover:bg-red-200"
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 ${getStatusBadge(todo.isCompleted)}`}
                   >
                     {todo.isCompleted ? (
                       <>
-                        <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <CheckCircle className="h-4 w-4" />
                         <span>Completed</span>
                       </>
                     ) : (
                       <>
-                        <XCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                        <XCircle className="h-4 w-4" />
                         <span>Pending</span>
                       </>
                     )}
                   </button>
                 </td>
 
-                <td className="px-4 sm:px-6 py-3 sm:py-4">
-                  <div className="flex items-center gap-1 sm:gap-2">
+                <td className="px-6 py-4">
+                  <div className="flex items-center gap-2">
                     {editingTodo === todo._id ? (
                       <>
                         <button
                           onClick={() => saveEdit(todo._id)}
-                          className="flex items-center gap-1 bg-blue-500 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-blue-600 transition text-xs sm:text-sm"
+                          className="flex items-center gap-1 bg-gradient-to-r from-green-400 to-green-500 text-white px-4 py-2 rounded-xl hover:from-green-500 hover:to-green-600 transition-all duration-200 text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                         >
-                          <Check className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <Save className="h-4 w-4" />
                           Save
                         </button>
                         <button
                           onClick={cancelEdit}
-                          className="flex items-center gap-1 bg-gray-500 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-600 transition text-xs sm:text-sm"
+                          className="flex items-center gap-1 bg-gradient-to-r from-gray-400 to-gray-500 text-white px-4 py-2 rounded-xl hover:from-gray-500 hover:to-gray-600 transition-all duration-200 text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                         >
-                          <X className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <X className="h-4 w-4" />
                           Cancel
                         </button>
                       </>
@@ -143,16 +145,16 @@ const DesktopTodoTable = ({
                       <>
                         <button
                           onClick={() => startEditing(todo)}
-                          className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-blue-200 transition text-xs sm:text-sm"
+                          className="flex items-center gap-1 bg-gradient-to-r from-indigo-400 to-purple-500 text-white px-4 py-2 rounded-xl hover:from-indigo-500 hover:to-purple-600 transition-all duration-200 text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                         >
-                          <Edit className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <Edit className="h-4 w-4" />
                           Edit
                         </button>
                         <button
                           onClick={() => setShowDeleteConfirm(todo._id)}
-                          className="flex items-center gap-1 bg-red-100 text-red-700 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-red-200 transition text-xs sm:text-sm"
+                          className="flex items-center gap-1 bg-gradient-to-r from-red-400 to-red-500 text-white px-4 py-2 rounded-xl hover:from-red-500 hover:to-red-600 transition-all duration-200 text-sm font-semibold shadow-md hover:shadow-lg transform hover:scale-105"
                         >
-                          <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" />
+                          <Trash2 className="h-4 w-4" />
                           Delete
                         </button>
                       </>
@@ -164,20 +166,26 @@ const DesktopTodoTable = ({
 
             {filteredTodos.length === 0 && (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 sm:px-6 py-8 sm:py-12 text-center"
-                >
-                  <div className="flex flex-col items-center justify-center text-gray-400">
-                    {/* <Calendar className="h-12 w-12 sm:h-16 sm:w-16 mb-3 sm:mb-4 opacity-50" /> */}
-                    <p className="text-base sm:text-lg font-medium text-gray-500 mb-1 sm:mb-2">
+                <td colSpan={5} className="px-6 py-16 text-center">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-32 h-32 bg-gradient-to-br from-indigo-100 to-purple-100 rounded-full flex items-center justify-center mb-6 shadow-inner">
+                      <Calendar className="h-16 w-16 text-indigo-400" />
+                    </div>
+                    <p className="text-2xl font-bold text-gray-700 mb-3">
                       No tasks found
                     </p>
-                    <p className="text-gray-400 text-sm sm:text-base">
+                    <p className="text-gray-500 text-base mb-6">
                       {filter === "all"
-                        ? "Start by adding a new todo!"
-                        : `No ${filter} tasks found`}
+                        ? "Ready to add your first todo?"
+                        : `No ${filter} tasks available`}
                     </p>
+                    <button
+                      onClick={() => setShowAddForm(true)}
+                      className="flex items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white px-8 py-4 rounded-xl hover:from-indigo-600 hover:to-purple-700 transition-all duration-300 text-base font-semibold shadow-xl hover:shadow-2xl transform hover:scale-105"
+                    >
+                      <Plus className="h-5 w-5" />
+                      Create Your First Todo
+                    </button>
                   </div>
                 </td>
               </tr>

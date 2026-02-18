@@ -1,11 +1,14 @@
 const express = require('express');
-const { registerUser, loginUser } = require('../handlers/user.handlers.js');
+const { registerUser, loginUser, getCurrentUser } = require('../handlers/user.handlers.js'); 
 const { authMiddleware } = require('../middlewares/auth.middleware.js');
 
-const userRouter = express.Router()
+const userRouter = express.Router();
 
-userRouter.post('/register', registerUser);
+// Public routes
+userRouter.post('/register', registerUser); 
 userRouter.post('/login', loginUser);
-// userRouter.post('/', authMiddleware, getUser);
 
-module.exports = userRouter
+// Protected route - current user info
+userRouter.get('/me', authMiddleware, getCurrentUser);  
+
+module.exports = userRouter;
