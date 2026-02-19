@@ -10,11 +10,7 @@ const app = express();
 
 // --- CORS ---
 app.use(cors({
-  origin: [
-    "https://frontend-crud-liart.vercel.app", 
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173"
-  ],
+  origin: '*', // just for practice purpose allowed all origins
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
