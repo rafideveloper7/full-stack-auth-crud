@@ -8,19 +8,31 @@ const todoRouter = require("./routes/todo.routes.js");
 
 const app = express();
 
-// --- CORS ---
+// ✅ SINGLE CORS CONFIGURATION - YAHI KAFI HAI
+const allowedOrigins = [
+  "https://todoapi-wine.vercel.app",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173"
+];
+
 app.use(cors({
-  origin: [
-    "https://todoapi-wine.vercel.app", 
-    "http://localhost:5173", 
-    "http://127.0.0.1:5173"
-  ],
+  origin: function (origin, callback) {
+    // Allow requests with no origin (Postman, curl)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) === -1) {
+      console.log('❌ Blocked origin:', origin);
+      return callback(new Error('CORS not allowed'), false);
+    }
+    console.log('✅ Allowed origin:', origin);
+    return callback(null, true);
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// REMOVE OR COMMENT OUT THIS LINE - it's causing the error
+// ⚠️ YEH LINE HATANA - iski zaroorat nahi
 // app.options('*', cors());  // ← REMOVE THIS LINE
 
 app.use(express.json());
@@ -36,7 +48,7 @@ connectDB().then(() => {
 app.use("/api/user", userRouter);
 app.use("/api/todo", todoRouter);
 
-// Test endpoint to check if backend is reachable
+// Test endpoint
 app.get("/api/health", (req, res) => {
   res.json({ 
     status: "ok", 
