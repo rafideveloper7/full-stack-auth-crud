@@ -11,18 +11,21 @@ const app = express();
 // --- CORS ---
 app.use(cors({
   origin: [
-  "https://frontend-crud-liart.vercel.app", 
-  "https://frontend-crud-liart.vercel.app/", 
-  "http://localhost:5173", 
-  "http://127.0.0.1:5173"
-],
+    "https://frontend-crud-liart.vercel.app", 
+    "http://localhost:5173", 
+    "http://127.0.0.1:5173"
+  ],
   credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// REMOVE OR COMMENT OUT THIS LINE - it's causing the error
+// app.options('*', cors());  // ← REMOVE THIS LINE
 
 app.use(express.json());
 
 // --- DATABASE ---
-// We call connectDB but don't let a failure crash the entire process immediately
 connectDB().then(() => {
   console.log("Database connected successfully");
 }).catch(err => {
@@ -33,27 +36,35 @@ connectDB().then(() => {
 app.use("/api/user", userRouter);
 app.use("/api/todo", todoRouter);
 
+// Test endpoint to check if backend is reachable
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    message: "Backend is running",
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get("/", (req, res) => {
   res.json({ 
     message: "API is running",
     mode: process.env.NODE_ENV === "production" ? "Vercel/Production" : "Local/Dev",
-    todos: `https://full-stack-auth-crud-51pi.vercel.app/api/todo`,
-    methods: `Get, Post, Put, Delete`,
-    user: `https://full-stack-auth-crud-51pi.vercel.app/api/user`,
-    method: `Post`
-
+    endpoints: {
+      health: "/api/health",
+      user: "/api/user",
+      todo: "/api/todo"
+    }
   });
 });
 
 app.use((req,res) => {
   res.status(404).send({
     isSuccess: false,
-    message: `page not fund 404`
-  })
+    message: `page not found 404`
+  });
 });
 
 // --- EXECUTION LOGIC ---
-// If we are NOT on Vercel, we need to manually call app.listen
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
   app.listen(PORT, () => {
@@ -61,5 +72,4 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-// Export for Vercel
 module.exports = app;

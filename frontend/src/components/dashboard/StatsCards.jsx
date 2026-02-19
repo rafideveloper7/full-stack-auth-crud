@@ -1,98 +1,103 @@
 import { Calendar, CheckCircle, Clock, TrendingUp } from "lucide-react";
+import { useEffect } from "react";
 
 const StatsCards = ({ stats }) => {
-  const cards = [
-    {
-      title: "Total Tasks",
-      value: stats.total,
-      icon: Calendar,
-      color: "blue",
-      gradient: "from-blue-500 to-indigo-600",
-      bgLight: "bg-blue-50",
-      textLight: "text-blue-600"
-    },
-    {
-      title: "Completed",
-      value: stats.completed,
-      icon: CheckCircle,
-      color: "green",
-      gradient: "from-green-500 to-emerald-600",
-      bgLight: "bg-green-50",
-      textLight: "text-green-600"
-    },
-    {
-      title: "Pending",
-      value: stats.pending,
-      icon: Clock,
-      color: "orange",
-      gradient: "from-orange-500 to-red-600",
-      bgLight: "bg-orange-50",
-      textLight: "text-orange-600"
-    }
-  ];
+  // Debug: See what's coming in props
+  // useEffect(() => {
+  //   console.log('📊 StatsCards received props:', stats);
+  // }, [stats]);
 
-  const completionRate = stats.total > 0 
-    ? Math.round((stats.completed / stats.total) * 100) 
-    : 0;
+  // Ensure we have numbers
+  const total = stats?.total ?? 0;
+  const completed = stats?.completed ?? 0;
+  
+  // 👉 IMPORTANT: Calculate pending from total and completed if not provided
+  const pending = stats?.pending ?? (total - completed);
+  
+  // Double-check calculation
+  const calculatedPending = total - completed;
+  
+  // console.log('📊 StatsCards values:', {
+  //   total,
+  //   completed,
+  //   pendingFromProps: stats?.pending,
+  //   calculatedPending,
+  //   usingPending: pending,
+  //   match: pending === calculatedPending
+  // });
+
+  const completionRate = total > 0 ? Math.round((completed / total) * 100) : 0;
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 mb-6 lg:mb-8">
-        {cards.map((card, index) => (
-          <div
-            key={index}
-            className="group bg-white rounded-2xl shadow-lg p-6 border border-gray-100 hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-500 text-sm font-medium mb-1">
-                  {card.title}
-                </p>
-                <h3 className={`text-3xl sm:text-4xl font-bold bg-gradient-to-r ${card.gradient} bg-clip-text text-transparent`}>
-                  {card.value}
-                </h3>
-              </div>
-              <div className={`p-4 ${card.bgLight} rounded-2xl group-hover:scale-110 transition-all duration-500 group-hover:rotate-3`}>
-                <card.icon className={`h-8 w-8 ${card.textLight}`} />
-              </div>
+      {/* 2x2 Grid on Mobile */}
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        {/* Total Card */}
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-3 border border-blue-200">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+              <Calendar className="h-4 w-4 text-white" />
             </div>
-            <div className="mt-4 h-2 bg-gray-100 rounded-full overflow-hidden">
-              <div 
-                className={`h-full bg-gradient-to-r ${card.gradient} rounded-full transition-all duration-1000`}
-                style={{ 
-                  width: card.title === "Total Tasks" ? '100%' : 
-                         card.title === "Completed" ? `${completionRate}%` : 
-                         `${100 - completionRate}%` 
-                }}
-              />
+            <div>
+              <p className="text-xs text-gray-600">Total</p>
+              <p className="text-lg font-bold text-blue-700">{total}</p>
             </div>
           </div>
-        ))}
+        </div>
+
+        {/* Completed Card */}
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-3 border border-green-200">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-green-600 rounded-lg flex items-center justify-center">
+              <CheckCircle className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-600">Done</p>
+              <p className="text-lg font-bold text-green-700">{completed}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Pending Card - Using calculated pending */}
+        <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-3 border border-orange-200">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-orange-600 rounded-lg flex items-center justify-center">
+              <Clock className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-600">Pending</p>
+              <p className="text-lg font-bold text-orange-700">{pending}</p>
+              {/* Show calculation if there's a mismatch */}
+              {pending !== calculatedPending && (
+                <p className="text-[10px] text-gray-500">
+                  (calc: {calculatedPending})
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Progress Card */}
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-3 border border-purple-200">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-purple-600 rounded-lg flex items-center justify-center">
+              <TrendingUp className="h-4 w-4 text-white" />
+            </div>
+            <div>
+              <p className="text-xs text-gray-600">Progress</p>
+              <p className="text-lg font-bold text-purple-700">{completionRate}%</p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {stats.total > 0 && (
-        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl shadow-xl p-6 mb-6 text-white">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-white/20 rounded-xl">
-                <TrendingUp className="h-6 w-6" />
-              </div>
-              <div>
-                <p className="text-white/80 text-sm">Overall Progress</p>
-                <p className="text-2xl font-bold">{completionRate}% Complete</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <div className="text-center">
-                <p className="text-white/80 text-xs">Completed</p>
-                <p className="text-xl font-bold">{stats.completed}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-white/80 text-xs">Pending</p>
-                <p className="text-xl font-bold">{stats.pending}</p>
-              </div>
-            </div>
-          </div>
+      {/* Mini Progress Bar */}
+      {total > 0 && (
+        <div className="bg-gray-100 rounded-full h-1.5 mb-4">
+          <div 
+            className="h-full bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full"
+            style={{ width: `${completionRate}%` }}
+          />
         </div>
       )}
     </>

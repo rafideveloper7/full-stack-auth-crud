@@ -6,6 +6,7 @@ const DashboardHeader = ({
   showMobileMenu,
   setShowMobileMenu,
   stats,
+  onProfileClick,
 }) => {
   return (
     <>
@@ -46,7 +47,10 @@ const DashboardHeader = ({
         {showMobileMenu && (
           <div className="mt-2 bg-white/95 backdrop-blur-sm rounded-xl shadow-lg p-4 animate-slideDown border border-gray-100">
             {currentUser && (
-              <div className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100">
+              <div 
+                onClick={onProfileClick}
+                className="flex items-center gap-3 mb-4 pb-3 border-b border-gray-100 cursor-pointer hover:bg-gray-50 transition-all duration-200 rounded-lg p-2"
+              >
                 <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0">
                   {currentUser.profileImage ? (
                     <img 
@@ -68,6 +72,7 @@ const DashboardHeader = ({
                     {currentUser.email}
                   </p>
                 </div>
+                <span className="text-xs text-blue-600">Click to view profile</span>
               </div>
             )}
 
@@ -108,8 +113,11 @@ const DashboardHeader = ({
 
         <div className="flex items-center gap-3">
           {currentUser && (
-            <div className="hidden sm:flex items-center gap-2 sm:gap-3 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-sm border border-gray-200">
-              <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0">
+            <div 
+              onClick={onProfileClick}
+              className="hidden sm:flex items-center gap-2 sm:gap-3 bg-white/80 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full shadow-sm border border-gray-200 cursor-pointer hover:bg-white hover:shadow-lg transition-all duration-200 group"
+            >
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0 group-hover:scale-105 transition-transform duration-200">
                 {currentUser.profileImage ? (
                   <img 
                     src={currentUser.profileImage} 

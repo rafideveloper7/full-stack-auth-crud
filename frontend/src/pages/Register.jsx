@@ -17,7 +17,7 @@ function Register() {
   const CLOUDINARY_URL = import.meta.env.VITE_CLOUDINARY_URL;
   const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
 
-  console.log(`a: ${CLOUDINARY_UPLOAD_PRESET} and b: ${CLOUDINARY_URL}`);
+  // console.log(`a: ${CLOUDINARY_UPLOAD_PRESET} and b: ${CLOUDINARY_URL}`);
   
 
   const handleChange = (e) => {

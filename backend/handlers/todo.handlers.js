@@ -1,146 +1,128 @@
 const Todo = require("../models/todo.model");
 
-
-/*
-GET /todos
-Get all todos of logged-in user
-*/
+// Get all todos for a user
 const getTodos = async (req, res) => {
   try {
+    const userId = req.userId;
+    console.log("Fetching todos for user:", userId);
 
-    const todos = await Todo.find({ user: req.userId }).sort({ createdAt: -1 });
+    const todos = await Todo.find({ user: userId }).sort({ createdAt: -1 });
 
-    console.log("Found todos:", todos.length);
-    console.log(
-      "Todos found:",
-      todos.map((t) => ({ id: t._id, title: t.title, user: t.user })),
-    );
-
-    res.status(200).json({
+    res.json({
       isSuccess: true,
-      count: todos.length,
-      data: todos,
+      todos
     });
   } catch (error) {
-    console.error("GET TODOS ERROR:", error);
-    res.status(500).json({
-      isSuccess: false,
-      message: "Internal server error",
+    console.error("Error fetching todos:", error);
+    res.status(500).json({ 
+      isSuccess: false, 
+      message: "Failed to fetch todos" 
     });
   }
 };
 
-/*
-POST /todos
-Create todo for logged-in user
-*/
+// Create a new todo
 const createTodo = async (req, res) => {
   try {
-
     const { title, description } = req.body;
+    const userId = req.userId;
 
-    if (!title) {
-      return res.status(400).json({
-        isSuccess: false,
-        message: "Title is required",
+    console.log("Creating todo for user:", userId, "title:", title);
+
+    if (!title || title.trim() === '') {
+      return res.status(400).json({ 
+        isSuccess: false, 
+        message: "Todo title is required" 
       });
     }
 
     const todo = await Todo.create({
-      title,
-      description,
-      user: req.userId, // This attaches the user ID
+      title: title.trim(),
+      description: description || '',
+      isCompleted: false,
+      user: userId
     });
 
-    console.log("Todo created:", {
-      id: todo._id,
-      title: todo.title,
-      user: todo.user,
-    });
+    console.log("Todo created:", todo._id);
 
     res.status(201).json({
       isSuccess: true,
-      data: todo,
+      todo
     });
   } catch (error) {
-    console.error("CREATE TODO ERROR:", error);
-    res.status(500).json({
-      isSuccess: false,
-      message: "Internal server error",
+    console.error("Error creating todo:", error);
+    res.status(500).json({ 
+      isSuccess: false, 
+      message: "Failed to create todo" 
     });
   }
 };
 
-/*
-PUT /todos/:id
-Update todo (only owner)
-*/
+// Update a todo
 const updateTodo = async (req, res) => {
   try {
-    const { title, description, isCompleted } = req.body;
     const { id } = req.params;
+    const { title, description, isCompleted } = req.body;
+    const userId = req.userId;
 
-    const todo = await Todo.findOneAndUpdate(
-      { _id: id, user: req.userId },
-      { title, description, isCompleted },
-      { new: true, runValidators: true },
-    );
+    console.log("Updating todo:", id, "for user:", userId);
 
+    const todo = await Todo.findOne({ _id: id, user: userId });
+    
     if (!todo) {
-      return res.status(404).json({
-        isSuccess: false,
-        message: "Todo not found or not authorized",
+      return res.status(404).json({ 
+        isSuccess: false, 
+        message: "Todo not found" 
       });
     }
 
+    if (title !== undefined) todo.title = title;
+    if (description !== undefined) todo.description = description;
+    if (isCompleted !== undefined) todo.isCompleted = isCompleted;
+
+    await todo.save();
+
     res.json({
       isSuccess: true,
-      message: "Todo updated successfully",
-      data: todo,
+      todo
     });
   } catch (error) {
-    res.status(500).json({
-      isSuccess: false,
-      message: "Internal server error",
+    console.error("Error updating todo:", error);
+    res.status(500).json({ 
+      isSuccess: false, 
+      message: "Failed to update todo" 
     });
   }
 };
 
-/*
-DELETE /todos/:id
-Delete todo (only owner)
-*/
+// Delete a todo
 const deleteTodo = async (req, res) => {
   try {
     const { id } = req.params;
+    const userId = req.userId;
 
-    const todo = await Todo.findOneAndDelete({
-      _id: id,
-      user: req.userId,
-    });
+    console.log("Deleting todo:", id, "for user:", userId);
 
+    const todo = await Todo.findOneAndDelete({ _id: id, user: userId });
+    
     if (!todo) {
-      return res.status(404).json({
-        isSuccess: false,
-        message: "Todo not found or not authorized",
+      return res.status(404).json({ 
+        isSuccess: false, 
+        message: "Todo not found" 
       });
     }
 
     res.json({
       isSuccess: true,
-      message: "Todo deleted successfully",
+      message: "Todo deleted successfully"
     });
   } catch (error) {
-    res.status(500).json({
-      isSuccess: false,
-      message: "Internal server error",
+    console.error("Error deleting todo:", error);
+    res.status(500).json({ 
+      isSuccess: false, 
+      message: "Failed to delete todo" 
     });
   }
 };
 
-module.exports = {
-  getTodos,
-  createTodo,
-  updateTodo,
-  deleteTodo,
-};
+module.exports = { getTodos, createTodo, updateTodo, deleteTodo };

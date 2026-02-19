@@ -1,18 +1,23 @@
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { useTodos } from "../hooks/useTodos";
 import DashboardHeader from "../components/dashboard/DashboardHeader";
 import StatsCards from "../components/dashboard/StatsCards";
 import TodoSearch from "../components/dashboard/TodoSearch";
 import TodoFilters from "../components/dashboard/TodoFilters";
-import AddTodoModal from "../components/dashboard/AddTodoModal"; // Changed import
+import AddTodoModal from "../components/dashboard/AddTodoModal";
 import DeleteConfirmModal from "../components/dashboard/DeleteConfirmModal";
 import MobileTodoCard from "../components/dashboard/MobileTodoCard";
 import DesktopTodoTable from "../components/dashboard/DesktopTodoTable";
 import LoadingSpinner from "../components/dashboard/LoadingSpinner";
+import UserProfile from "../components/dashboard/UserProfile";
 import { Calendar, Plus, AlertCircle, X } from "lucide-react";
 
 function Dashboard() {
+  const [showProfile, setShowProfile] = useState(false);
+  
   const { user, logout } = useAuth();
+  
   const {
     filteredTodos,
     loading,
@@ -44,14 +49,13 @@ function Dashboard() {
     clearError
   } = useTodos();
 
-  // if (loading) {
-  //   return <LoadingSpinner />;
-  // }
+  if (loading) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-blue-50 p-3 sm:p-4 md:p-5 lg:p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Error Toast */}
         {error && (
           <div className="mb-4 p-4 bg-red-50 border-2 border-red-200 rounded-xl animate-slideDown shadow-lg">
             <div className="flex items-center justify-between">
@@ -69,22 +73,17 @@ function Dashboard() {
           </div>
         )}
 
-        {/* Header */}
         <DashboardHeader
           currentUser={user}
           logout={logout}
           showMobileMenu={showMobileMenu}
           setShowMobileMenu={setShowMobileMenu}
           stats={stats}
+          onProfileClick={() => setShowProfile(true)}
         />
 
-        {/* Stats Cards */}
         <StatsCards stats={stats} />
-
-        {/* Search Bar */}
         <TodoSearch searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
-
-        {/* Add Todo Button & Filters */}
         <TodoFilters
           showAddForm={showAddForm}
           setShowAddForm={setShowAddForm}
@@ -94,7 +93,6 @@ function Dashboard() {
           totalTodos={stats.total}
         />
 
-        {/* Add Todo Modal */}
         {showAddForm && (
           <AddTodoModal
             newTodo={newTodo}
@@ -104,7 +102,6 @@ function Dashboard() {
           />
         )}
 
-        {/* Delete Confirmation Modal */}
         {showDeleteConfirm && (
           <DeleteConfirmModal
             showDeleteConfirm={showDeleteConfirm}
@@ -112,6 +109,12 @@ function Dashboard() {
             setShowDeleteConfirm={setShowDeleteConfirm}
           />
         )}
+
+        <UserProfile
+          isOpen={showProfile}
+          onClose={() => setShowProfile(false)}
+          stats={stats}
+        />
 
         {/* Mobile View */}
         <div className="block lg:hidden">

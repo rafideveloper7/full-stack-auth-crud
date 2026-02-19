@@ -1,14 +1,28 @@
+// backend/routes/user.routes.js
 const express = require('express');
-const { registerUser, loginUser, getCurrentUser } = require('../handlers/user.handlers.js'); 
-const { authMiddleware } = require('../middlewares/auth.middleware.js');
+const { 
+  registerUser, 
+  loginUser, 
+  updateUserProfile,
+  getCurrentUser 
+} = require('../handlers/user.handlers');
+const { authMiddleware } = require('../middlewares/auth.middleware');
 
-const userRouter = express.Router();
+const router = express.Router();
 
 // Public routes
-userRouter.post('/register', registerUser); 
-userRouter.post('/login', loginUser);
+router.post('/register', registerUser);
+router.post('/login', loginUser);
 
-// Protected route - current user info
-userRouter.get('/me', authMiddleware, getCurrentUser);  
+// Protected routes
+router.get('/me', authMiddleware, getCurrentUser);
+router.put('/profile', authMiddleware, updateUserProfile);
 
-module.exports = userRouter;
+// Debug: Log all routes
+console.log('✅ User routes registered:');
+console.log('  POST /api/user/register');
+console.log('  POST /api/user/login');
+console.log('  GET /api/user/me');
+console.log('  PUT /api/user/profile');
+
+module.exports = router;

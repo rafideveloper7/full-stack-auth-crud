@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-// Create and export the context
+// Create context
 export const AuthContext = createContext(null);
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -40,23 +40,10 @@ export const AuthProvider = ({ children }) => {
         { headers: { "Content-Type": "application/json" } },
       );
 
-      console.log("📥 Login response:", response.data);
-
       if (response.data.token) {
-        // Store the token as-is
         localStorage.setItem("token", response.data.token);
-        
-        // Extract user from token
         const userData = extractUserFromToken(response.data.token);
-        
-        // 👉 IMPORTANT: Response se bhi user data le sakte ho
-        if (response.data.user) {
-          userData.profileImage = response.data.user.profileImage || userData.profileImage;
-        }
-        
-        console.log("👤 User data after login:", userData);
         setUser(userData);
-        
         setTimeout(() => navigate("/"), 0);
         return { success: true, user: userData };
       }
@@ -72,33 +59,18 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       setError(null);
-      
-      console.log("📤 Sending registration data:", userData);
-
       const response = await axios.post(
         `${API_BASE_URL}/api/user/register`,
         userData,
         { headers: { "Content-Type": "application/json" } },
       );
 
-      console.log("📥 Register response:", response.data);
-
       if (response.data.token) {
         localStorage.setItem("token", response.data.token);
-        
-        // Extract user from token
-        const userFromToken = extractUserFromToken(response.data.token);
-        
-        // 👉 IMPORTANT: Response se bhi user data le lo
-        if (response.data.user) {
-          userFromToken.profileImage = response.data.user.profileImage || userFromToken.profileImage;
-        }
-        
-        console.log("👤 User data after register:", userFromToken);
-        setUser(userFromToken);
-        
+        const userData = extractUserFromToken(response.data.token);
+        setUser(userData);
         setTimeout(() => navigate("/"), 0);
-        return { success: true, user: userFromToken };
+        return { success: true, user: userData };
       }
       return { success: false, error: "Invalid response from server" };
     } catch (err) {
@@ -119,14 +91,11 @@ export const AuthProvider = ({ children }) => {
   const extractUserFromToken = (token) => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
-      console.log("🎫 Decoded token payload:", payload);
-      
-      // Return user object with all fields
       return {
         id: payload.id || payload._id || payload.userId,
-        name: payload.name || '',
-        email: payload.email || '',
-        profileImage: payload.profileImage || '',  // 👈 Explicitly get profileImage
+        name: payload.name,
+        email: payload.email,
+        profileImage: payload.profileImage || '',
       };
     } catch (error) {
       console.error("Error parsing token:", error);
@@ -142,13 +111,11 @@ export const AuthProvider = ({ children }) => {
         try {
           const userData = extractUserFromToken(token);
           if (userData?.id) {
-            console.log("👤 User restored from token:", userData);
             setUser(userData);
           } else {
             logout();
           }
         } catch (error) {
-          console.error("Auth check error:", error);
           logout();
         }
       }
@@ -158,10 +125,31 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // 👉 Debug user state changes
-  useEffect(() => {
-    console.log("🔄 AuthContext user updated:", user);
-  }, [user]);
+  // Update user profile
+  const updateProfile = async (profileData) => {
+    try {
+      setError(null);
+      const response = await axios.put(
+        `${API_BASE_URL}/api/user/profile`,
+        profileData,
+        authHeader()
+      );
+
+      if (response.data.isSuccess) {
+        if (response.data.token) {
+          localStorage.setItem("token", response.data.token);
+          const userData = extractUserFromToken(response.data.token);
+          setUser(userData);
+        }
+        return { success: true, user: response.data.user };
+      }
+      return { success: false, error: response.data.message || "Update failed" };
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Profile update failed";
+      setError(errorMessage);
+      return { success: false, error: errorMessage };
+    }
+  };
 
   const value = {
     user,
@@ -170,6 +158,7 @@ export const AuthProvider = ({ children }) => {
     login,
     register,
     logout,
+    updateProfile,
     getToken,
     authHeader,
     isAuthenticated: !!user,

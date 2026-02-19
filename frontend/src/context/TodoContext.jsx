@@ -1,219 +1,326 @@
-import { createContext, useState, useEffect, useCallback, useMemo } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useMemo,
+} from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 
-// Create and export the context
-export const TodoContext = createContext(null);
+// Create context
+const TodoContext = createContext();
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+// Custom hook to use the context
+export const useTodos = () => {
+  const context = useContext(TodoContext);
+  if (!context) {
+    throw new Error("useTodos must be used within a TodoProvider");
+  }
+  return context;
+};
 
+// Provider component
 export const TodoProvider = ({ children }) => {
   const [todos, setTodos] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [editingTodo, setEditingTodo] = useState(null);
   const [editForm, setEditForm] = useState({ title: "", description: "" });
   const [newTodo, setNewTodo] = useState({ title: "", description: "" });
   const [expandedTodoId, setExpandedTodoId] = useState(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
-  
-  const navigate = useNavigate();
 
-  // Get token from localStorage
-  const getToken = () => {
+  const API_URL = import.meta.env.VITE_API_BASE_URL;
+
+  // Clear error
+  const clearError = () => setError(null);
+
+  // Get auth headers
+  const getAuthHeaders = () => {
     const token = localStorage.getItem("token");
-    return token || null;
-  };
+    // console.log("Token being sent:", token); 
 
-  // Set auth header - IMPORTANT: Send raw token without "Bearer " prefix
-  const authHeader = () => {
-    const token = getToken();
     return {
-      headers: { 
-        Authorization: token, // Send raw token as your backend expects
-        "Content-Type": "application/json"
-      }
+      headers: {
+        Authorization: token, // Just the token, no "Bearer " prefix
+        "Content-Type": "application/json",
+      },
     };
   };
 
-  // Logout function
-  const handleLogout = useCallback(() => {
-    localStorage.removeItem("token");
-    navigate("/login");
-  }, [navigate]);
-
-  // Fetch todos
-  const fetchTodos = useCallback(async () => {
-    // Don't fetch if no token
-    const token = getToken();
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
+  // Fetch all todos
+  const fetchTodos = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.log("No token found, skipping todo fetch");
+        return;
+      }
+
       setLoading(true);
       setError(null);
-      
-      const response = await axios.get(`${API_BASE_URL}/api/todo`, authHeader());
+      // console.log("Fetching todos...");
 
-      if (response.data.isSuccess) {
-        setTodos(response.data.data || []);
-      } else {
-        setError(response.data.message || "Failed to fetch todos");
-      }
-    } catch (err) {
-      console.error("Fetch todos error:", err);
-      if (err.response?.status === 401) {
-        // Token expired or invalid
+      const response = await axios.get(`${API_URL}/api/todo`, getAuthHeaders());
+
+      // console.log("Todos fetched:", response.data);
+      setTodos(response.data.todos || []);
+    } catch (error) {
+      console.error("Fetch todos error:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+
+      setError(error.response?.data?.message || "Failed to fetch todos");
+
+      // If unauthorized, clear token
+      if (error.response?.status === 401) {
         localStorage.removeItem("token");
-        handleLogout();
-      } else {
-        setError(err.response?.data?.message || "Failed to fetch todos");
+        localStorage.removeItem("user");
       }
     } finally {
       setLoading(false);
     }
-  }, [handleLogout]);
+  };
 
-  // Add todo
-  const addTodo = useCallback(async () => {
-    if (!newTodo.title.trim()) {
-      setError("Please enter a title");
-      return false;
-    }
-
+  // Add new todo
+  const addTodo = async () => {
     try {
-      setError(null);
-      await axios.post(`${API_BASE_URL}/api/todo`, newTodo, authHeader());
-      setNewTodo({ title: "", description: "" });
-      setShowAddForm(false);
-      await fetchTodos();
-      return true;
-    } catch (err) {
-      console.error("Error adding todo:", err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem("token");
-        handleLogout();
-      } else {
-        setError(err.response?.data?.message || "Failed to add todo");
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Not authenticated");
+        return { success: false, error: "Not authenticated" };
       }
-      return false;
-    }
-  }, [newTodo, fetchTodos, handleLogout]);
 
-  // Update todo
-  const updateTodo = useCallback(async (id, updates) => {
-    try {
-      setError(null);
-      await axios.put(`${API_BASE_URL}/api/todo/${id}`, updates, authHeader());
-      setEditingTodo(null);
-      setEditForm({ title: "", description: "" });
-      await fetchTodos();
-      return true;
-    } catch (err) {
-      console.error("Error updating todo:", err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem("token");
-        handleLogout();
-      } else {
-        setError(err.response?.data?.message || "Failed to update todo");
+      if (!newTodo.title || newTodo.title.trim() === "") {
+        setError("Todo title cannot be empty");
+        return { success: false, error: "Todo title cannot be empty" };
       }
-      return false;
-    }
-  }, [fetchTodos, handleLogout]);
 
-  // Delete todo
-  const deleteTodo = useCallback(async (id) => {
-    try {
-      setError(null);
-      await axios.delete(`${API_BASE_URL}/api/todo/${id}`, authHeader());
-      setShowDeleteConfirm(null);
-      await fetchTodos();
-      return true;
-    } catch (err) {
-      console.error("Error deleting todo:", err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem("token");
-        handleLogout();
-      } else {
-        setError(err.response?.data?.message || "Failed to delete todo");
+      // console.log("Adding todo:", newTodo);
+
+      const response = await axios.post(
+        `${API_URL}/api/todo`,
+        {
+          title: newTodo.title.trim(),
+          description: newTodo.description?.trim() || "",
+        },
+        getAuthHeaders(),
+      );
+
+      // console.log("Todo added:", response.data);
+
+      if (response.data.isSuccess) {
+        setTodos((prevTodos) => [response.data.todo, ...prevTodos]);
+        setNewTodo({ title: "", description: "" });
+        setShowAddForm(false);
+        setError(null);
+        return { success: true, todo: response.data.todo };
       }
-      return false;
+    } catch (error) {
+      console.error("Add todo error:", {
+        message: error.message,
+        status: error.response?.status,
+        data: error.response?.data,
+      });
+      setError(error.response?.data?.message || "Failed to add todo");
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to add todo",
+      };
     }
-  }, [fetchTodos, handleLogout]);
+  };
 
-  // Toggle todo status
-  const toggleTodoStatus = useCallback(async (id, currentStatus) => {
-    await updateTodo(id, { isCompleted: !currentStatus });
-  }, [updateTodo]);
-
-  // Start editing
-  const startEditing = useCallback((todo) => {
+  // Start editing a todo
+  const startEditing = (todo) => {
     setEditingTodo(todo._id);
-    setEditForm({ 
-      title: todo.title, 
-      description: todo.description || "" 
+    setEditForm({
+      title: todo.title,
+      description: todo.description || "",
     });
-    setExpandedTodoId(todo._id);
-  }, []);
+  };
 
   // Cancel editing
-  const cancelEdit = useCallback(() => {
+  const cancelEdit = () => {
     setEditingTodo(null);
     setEditForm({ title: "", description: "" });
-  }, []);
+  };
 
   // Save edit
-  const saveEdit = useCallback(async (id) => {
-    const success = await updateTodo(id, editForm);
-    if (success) {
-      setEditingTodo(null);
+  const saveEdit = async (id) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Not authenticated");
+        return { success: false, error: "Not authenticated" };
+      }
+
+      if (!editForm.title || editForm.title.trim() === "") {
+        setError("Todo title cannot be empty");
+        return { success: false, error: "Todo title cannot be empty" };
+      }
+
+      // console.log("Updating todo:", id, editForm);
+
+      const response = await axios.put(
+        `${API_URL}/api/todo/${id}`,
+        {
+          title: editForm.title.trim(),
+          description: editForm.description?.trim() || "",
+        },
+        getAuthHeaders(),
+      );
+
+      // console.log("Todo updated:", response.data);
+
+      if (response.data.isSuccess) {
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo._id === id ? response.data.todo : todo,
+          ),
+        );
+        cancelEdit();
+        setError(null);
+        return { success: true };
+      }
+    } catch (error) {
+      console.error("Update todo error:", error);
+      setError(error.response?.data?.message || "Failed to update todo");
+      return {
+        success: false,
+        error: error.response?.data?.message || "Failed to update todo",
+      };
     }
-  }, [editForm, updateTodo]);
+  };
 
-  // Filtered todos
+  // Toggle todo completion
+  const toggleTodoStatus = async (id, currentStatus) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Not authenticated");
+        return;
+      }
+
+      const response = await axios.put(
+        `${API_URL}/api/todo/${id}`,
+        { isCompleted: !currentStatus },
+        getAuthHeaders(),
+      );
+
+      if (response.data.isSuccess) {
+        setTodos((prevTodos) =>
+          prevTodos.map((todo) =>
+            todo._id === id ? response.data.todo : todo,
+          ),
+        );
+      }
+    } catch (error) {
+      console.error("Toggle todo error:", error);
+      setError(error.response?.data?.message || "Failed to update todo");
+    }
+  };
+
+  // Delete todo
+  const deleteTodo = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("Not authenticated");
+        return;
+      }
+
+      const todoToDelete = todos.find((t) => t._id === showDeleteConfirm);
+
+      if (!todoToDelete) {
+        setShowDeleteConfirm(false);
+        return;
+      }
+
+      // console.log("Deleting todo:", showDeleteConfirm);
+
+      const response = await axios.delete(
+        `${API_URL}/api/todo/${showDeleteConfirm}`,
+        getAuthHeaders(),
+      );
+
+      // console.log("Todo deleted:", response.data);
+
+      if (response.data.isSuccess) {
+        setTodos((prevTodos) =>
+          prevTodos.filter((todo) => todo._id !== showDeleteConfirm),
+        );
+        setShowDeleteConfirm(false);
+        setError(null);
+      }
+    } catch (error) {
+      console.error("Delete todo error:", error);
+      setError(error.response?.data?.message || "Failed to delete todo");
+      setShowDeleteConfirm(false);
+    }
+  };
+
+  // Filter and search todos
   const filteredTodos = useMemo(() => {
-    return todos.filter((todo) => {
-      // Filter by status
-      let statusMatch = true;
-      if (filter === "completed") statusMatch = todo.isCompleted;
-      if (filter === "pending") statusMatch = !todo.isCompleted;
+    let filtered = todos;
 
-      // Filter by search query
-      const searchMatch =
-        searchQuery === "" ||
-        todo.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (todo.description &&
-          todo.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    // Apply status filter
+    if (filter === "active") {
+      filtered = filtered.filter((todo) => !todo.isCompleted);
+    } else if (filter === "completed") {
+      filtered = filtered.filter((todo) => todo.isCompleted);
+    }
 
-      return statusMatch && searchMatch;
-    });
+    // Apply search
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (todo) =>
+          todo.title.toLowerCase().includes(query) ||
+          (todo.description && todo.description.toLowerCase().includes(query)),
+      );
+    }
+
+    return filtered;
   }, [todos, filter, searchQuery]);
 
-  // Stats
-  const stats = useMemo(() => ({
-    total: todos.length,
-    completed: todos.filter(t => t.isCompleted).length,
-    pending: todos.filter(t => !t.isCompleted).length
-  }), [todos]);
+  // Calculate stats
+  const stats = useMemo(() => {
+    return {
+      total: todos.length,
+      active: todos.filter((t) => !t.isCompleted).length,
+      completed: todos.filter((t) => t.isCompleted).length,
+    };
+  }, [todos]);
 
-  // Load todos when component mounts
+  // Load todos when token exists
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       fetchTodos();
-    } else {
-      setLoading(false);
     }
-  }, [fetchTodos]);
+
+    // Listen for storage events (login/logout in other tabs)
+    const handleStorageChange = (e) => {
+      if (e.key === "token") {
+        if (e.newValue) {
+          fetchTodos();
+        } else {
+          setTodos([]);
+        }
+      }
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
 
   const value = {
-    // State
     todos,
     filteredTodos,
     loading,
@@ -228,8 +335,6 @@ export const TodoProvider = ({ children }) => {
     expandedTodoId,
     showMobileMenu,
     stats,
-
-    // Setters
     setFilter,
     setSearchQuery,
     setShowAddForm,
@@ -238,17 +343,18 @@ export const TodoProvider = ({ children }) => {
     setNewTodo,
     setExpandedTodoId,
     setShowMobileMenu,
-
-    // Actions
-    fetchTodos,
     addTodo,
     deleteTodo,
     toggleTodoStatus,
     startEditing,
     cancelEdit,
     saveEdit,
-    clearError: () => setError(null)
+    clearError,
+    fetchTodos,
   };
 
   return <TodoContext.Provider value={value}>{children}</TodoContext.Provider>;
 };
+
+// Also export the context if needed elsewhere
+export { TodoContext };
