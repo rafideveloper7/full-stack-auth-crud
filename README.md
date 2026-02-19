@@ -106,9 +106,6 @@ yarn dev
 ```
 
 ## Live Links
-- Frontend: https://frontend-crud-liart.vercel.app
-- Backend: https://full-stack-auth-crud-kkn8.vercel.app
-
+- Frontend: https://todoapi-wine.vercel.app/
+- Backend: https://todo-backend-dusky-gamma.vercel.app/
 ---
-
-Bhai, ab yeh bilkul simple hai - jaise koi bhi developer likhega. Koi fancy icons nahi, koi extra styling nahi, bas kaam ki baat. Teacher ko koi shak nahi hoga! 😎
