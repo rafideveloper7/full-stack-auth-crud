@@ -4,6 +4,9 @@
 ## Project Overview
 Fullstack todo application , user login/register , crud operations, user can update profile (name, email, img) , ful responsive , 
 
+## Complete Doc:
+- see doc: https://docs.google.com/document/d/1PtZ-grBmgbFB-b5A4TOm1zvA24hXZmTzYfNVAAoWduk/edit?usp=sharing
+
 ## Tech Stack
 - **Frontend:** React (Vite), Tailwind CSS
 - **Backend:** Node.js, Express
